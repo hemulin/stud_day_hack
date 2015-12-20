@@ -49,6 +49,15 @@
 					font-size: 26px;
 				}
 			}
+
+			#btn_row {
+				margin-bottom: 3rem;
+			}
+
+			#resDiv {
+				font-size: 20px;
+    			font-weight: bold;
+			}
 		</style>
 	</head>
 	<body>
@@ -159,12 +168,29 @@
 										</div>
 										<div class="col-md-4">
 											<div class="input-group">
-											  <span class="input-group-addon">PFA</span>
-											  <input type="number" class="form-control" placeholder="" id="inner_cyl_rad">
+											  <span class="input-group-addon">APF</span>
+											  <input type="number" class="form-control" placeholder="" id="apf_num">
 											</div>
 										</div>
 									</div>
 								</form>
+							</div>
+							<div class="row" id="btn_row">
+								<div class="col-md-12">
+									<div class="row">
+										<div class="col-md-6">
+											<button type="button" class="btn btn-primary" id="calc_btn">Calculate</button>
+										</div>
+										<div class="col-md-6">
+											<button type="button" class="btn btn-warning" id="clear_btn">Clear Results</button>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div id="resDiv"></div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -180,7 +206,14 @@
 		<script>
 			$(function(){
 				var out_shape = "",
-					in_shape = ""
+					in_shape = "",
+					v_out = 0,
+					v_in = 0,
+					v_ratio = 0,
+					apf = 0,
+					res = 0,
+					htmlStr = "";
+
 
 				$("#outer_data, #inner_data").children().hide();
 
@@ -203,11 +236,11 @@
 					//console.log($(this).val());
 					in_shape = $(this).val();
 					$("#inner_data").children().removeClass("inner_show").hide();
-					if (out_shape == "cylinder") {
+					if (in_shape == "cylinder") {
 						$("#inner_cyl_data").addClass("inner_show");
-					} else if (out_shape == "sphere") {
+					} else if (in_shape == "sphere") {
 						$("#inner_sphere_data").addClass("inner_show");
-					} else if (out_shape == "orthotope") {
+					} else if (in_shape == "orthotope") {
 						$("#inner_cube_data").addClass("inner_show");
 					}
 					console.log("in_shape: "+in_shape);
@@ -215,6 +248,50 @@
 				});
 
 
+			   $("#calc_btn").on("click", function(){
+			   		if (out_shape == "cylinder") {
+				    	var r = $("#outer_cyl_rad").val();
+				      	var h = $("#outer_cyl_height").val();
+				      	v_out = Math.PI * r * r * h;
+				    } else if (out_shape == "sphere") {
+				    	var r = $("#outer_sphere_rad").val();
+				      	v_out = (4 / 3) * (Math.PI * r * r * r);
+				    } else if (out_shape == "orthotope") {
+				    	var a_len = $("#outer_cube_a").val();
+				      	var b_len = $("#outer_cube_b").val();
+				      	var c_len = $("#outer_cube_c").val();
+				      	v_out = a_len * b_len * c_len;
+				    }
+
+				    if (in_shape == "cylinder") {
+				    	var r = $("#inner_cyl_rad").val();
+				      	var h = $("#inner_cyl_height").val();
+				      	v_in = Math.PI * r * r * h;
+				    } else if (in_shape == "sphere") {
+				    	var r = $("#inner_sphere_rad").val();
+				      	v_in = (4 / 3) * (Math.PI * r * r * r);
+				      	//console.log("r: "+r, "v_in: "+v_in);
+				    } else if (in_shape == "orthotope") {
+				    	var a_len = $("#inner_cube_a").val();
+				      	var b_len = $("#inner_cube_b").val();
+				      	var c_len = $("#inner_cube_c").val();
+				      	v_in = a_len * b_len * c_len;
+				    }
+
+				    v_ratio = (v_out / v_in).toFixed(2);
+
+				    apf = $("#apf_num").val();
+
+				    res = v_ratio * apf;
+
+				    console.log(out_shape, in_shape, v_out, v_in, v_ratio, apf, res);
+
+				    htmlStr = "<span>The estimation is: "+res+"</span>"
+
+				    $("#resDiv").append(htmlStr);
+			   });
+
+			   $("#clear_btn").on("click", function(){ $("#resDiv").empty(); });
 
 			})
 		</script>
